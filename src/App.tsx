@@ -562,7 +562,7 @@ function App() {
               onClick={() => setActiveTab('settings')}
             >
               <Settings size={16} />
-              {language === 'en' ? 'Settings & Templates' : '配置 & 模版'}
+              {t.settings}
             </button>
           </div>
 
@@ -611,6 +611,7 @@ function App() {
         <main className="main-workspace">
           {/* Left Side: Product input form & prompt template configurations */}
           <div className="workspace-column">
+            {/* Card 1: Product details */}
             <section className="glass-panel glass-card inputs-grid">
               <div className="panel-header">
                 <h2 className="panel-title">
@@ -620,7 +621,7 @@ function App() {
               </div>
 
               {/* Product Name */}
-              <div className="form-group">
+              <div className="form-group" style={{ marginBottom: '12px' }}>
                 <label className="form-label">{t.productName} *</label>
                 <input 
                   type="text" 
@@ -633,8 +634,8 @@ function App() {
               </div>
 
               {/* Category & Channel Row */}
-              <div className="horizontal-inputs">
-                <div className="form-group">
+              <div className="horizontal-inputs" style={{ marginBottom: '12px' }}>
+                <div className="form-group" style={{ marginBottom: 0 }}>
                   <label className="form-label">{t.category} *</label>
                   <input 
                     type="text" 
@@ -646,7 +647,7 @@ function App() {
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="form-group" style={{ marginBottom: 0 }}>
                   <label className="form-label">{t.channel}</label>
                   <select 
                     className="form-input form-select"
@@ -664,35 +665,86 @@ function App() {
               </div>
 
               {/* Keywords */}
-              <div className="form-group">
+              <div className="form-group" style={{ marginBottom: 0 }}>
                 <label className="form-label">{t.keywords}</label>
                 <textarea 
                   className="form-input" 
                   value={keywords}
                   onChange={(e) => setKeywords(e.target.value)}
                   placeholder={t.keywordsPlaceholder}
-                  style={{ minHeight: '80px' }}
+                  style={{ minHeight: '60px' }}
+                />
+              </div>
+            </section>
+
+            {/* Card 2: AI Prompt Config */}
+            <section className="glass-panel glass-card inputs-grid">
+              <div className="panel-header" style={{ marginBottom: '12px', paddingBottom: '8px' }}>
+                <h2 className="panel-title">
+                  <Sparkles size={18} className="text-secondary" />
+                  {t.promptConfig}
+                </h2>
+              </div>
+
+              {/* Template Selection Dropdown with Delete button if custom */}
+              <div className="form-group" style={{ marginBottom: '12px' }}>
+                <label className="form-label">{t.promptTemplate}</label>
+                <div className="prompt-templates-row" style={{ marginBottom: 0 }}>
+                  <select
+                    className="form-input form-select prompt-templates-select"
+                    value={selectedTemplateId}
+                    onChange={(e) => handleTemplateChange(e.target.value)}
+                  >
+                    {templatesList.map(tpl => (
+                      <option key={tpl.id} value={tpl.id}>
+                        {language === 'en' ? tpl.nameEn : language === 'zh-TW' ? tpl.nameTw : tpl.name}
+                      </option>
+                    ))}
+                  </select>
+                  
+                  {/* Delete custom template */}
+                  {(() => {
+                    const currentTpl = templatesList.find(x => x.id === selectedTemplateId);
+                    return currentTpl && !currentTpl.isSystem && (
+                      <button 
+                        type="button" 
+                        onClick={handleDeleteTemplate} 
+                        className="btn btn-secondary btn-danger"
+                        title={t.deleteTemplate}
+                        style={{ padding: '0 12px' }}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    );
+                  })()}
+                </div>
+              </div>
+
+              {/* Prompt editing textarea */}
+              <div className="form-group" style={{ marginBottom: '16px' }}>
+                <div className="flex-between" style={{ marginBottom: '6px' }}>
+                  <label className="form-label" style={{ margin: 0 }}>{t.editPrompt}</label>
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => setShowSaveTemplateModal(true)}
+                    style={{ padding: '4px 10px', fontSize: '0.78rem' }}
+                  >
+                    <Plus size={14} />
+                    {t.saveAsTemplate}
+                  </button>
+                </div>
+                <textarea 
+                  className="form-input prompt-textarea" 
+                  value={editedPromptText}
+                  onChange={(e) => setEditedPromptText(e.target.value)}
+                  style={{ minHeight: '180px', fontSize: '0.82rem', fontFamily: 'monospace' }}
+                  placeholder="请输入提示词内容，可使用 {productName}, {category}, {keywords}, {channel} 作为占位符..."
                 />
               </div>
 
-              {/* Simplified Template Selection (No editing text area here) */}
-              <div className="form-group" style={{ marginTop: '12px' }}>
-                <label className="form-label">{t.promptConfig}</label>
-                <select
-                  className="form-input form-select"
-                  value={selectedTemplateId}
-                  onChange={(e) => handleTemplateChange(e.target.value)}
-                >
-                  {templatesList.map(tpl => (
-                    <option key={tpl.id} value={tpl.id}>
-                      {language === 'en' ? tpl.nameEn : language === 'zh-TW' ? tpl.nameTw : tpl.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
               {/* Bottom Actions */}
-              <div className="flex-between" style={{ marginTop: '16px', gap: '12px' }}>
+              <div className="flex-between" style={{ gap: '12px' }}>
                 <button 
                   type="button" 
                   className="btn btn-secondary" 
@@ -1083,91 +1135,43 @@ function App() {
             )}
           </div>
 
-          {/* Right Column: Prompt Template Management & Synchronization */}
+          {/* Right Column: Prompt Template Syncing */}
           <div className="workspace-column">
-            <section className="glass-panel glass-card inputs-grid">
+            <section className="glass-panel glass-card inputs-grid" style={{ minHeight: '100%' }}>
               <div className="panel-header">
                 <h2 className="panel-title">
-                  <Settings size={18} className="text-secondary" />
-                  {language === 'en' ? 'Prompt Template Management' : '提示词模板管理'}
+                  <Globe size={18} className="text-secondary" />
+                  {language === 'en' ? 'Template Backup & Sync' : '提示词模板备份与同步'}
                 </h2>
               </div>
+              
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '16px', lineHeight: '1.5' }}>
+                {language === 'en' 
+                  ? 'Backup your custom prompt templates to your GitHub repository as prompt.json, or pull existing templates to this browser.'
+                  : '将您自定义的提示词模板以 prompt.json 备份同步至绑定的 GitHub 仓库，或从 GitHub 拉取已有模板到此浏览器中。'}
+              </p>
 
-              <div className="prompt-area">
-                <label className="form-label">{t.promptConfig}</label>
-                <div className="prompt-templates-row">
-                  <select
-                    className="form-input form-select prompt-templates-select"
-                    value={selectedTemplateId}
-                    onChange={(e) => handleTemplateChange(e.target.value)}
-                  >
-                    {templatesList.map(tpl => (
-                      <option key={tpl.id} value={tpl.id}>
-                        {language === 'en' ? tpl.nameEn : language === 'zh-TW' ? tpl.nameTw : tpl.name}
-                      </option>
-                    ))}
-                  </select>
-                  
-                  {/* Delete custom template */}
-                  {(() => {
-                    const currentTpl = templatesList.find(x => x.id === selectedTemplateId);
-                    return currentTpl && !currentTpl.isSystem && (
-                      <button 
-                        type="button" 
-                        onClick={handleDeleteTemplate} 
-                        className="btn btn-secondary btn-danger"
-                        title={t.deleteTemplate}
-                        style={{ padding: '0 12px' }}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    );
-                  })()}
-                </div>
-
-                <div className="prompt-templates-row" style={{ marginTop: '8px', marginBottom: '8px' }}>
-                  <button
-                    type="button"
-                    className="btn btn-secondary btn-sm"
-                    onClick={handleUploadTemplatesToGitHub}
-                    disabled={!githubToken || !githubRepo}
-                    style={{ flex: 1, fontSize: '0.8rem' }}
-                  >
-                    <Save size={14} />
-                    {language === 'en' ? 'Upload Templates (prompt.json)' : '上传模板至 GitHub'}
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-secondary btn-sm"
-                    onClick={handlePullTemplatesFromGitHub}
-                    disabled={!githubToken || !githubRepo}
-                    style={{ flex: 1, fontSize: '0.8rem' }}
-                  >
-                    <RefreshCw size={14} />
-                    {language === 'en' ? 'Pull from GitHub' : '从 GitHub 拉取模板'}
-                  </button>
-                </div>
-
-                <div className="form-group">
-                  <div className="flex-between" style={{ marginBottom: '6px' }}>
-                    <label className="form-label" style={{ margin: 0 }}>{t.editPrompt}</label>
-                    <button 
-                      type="button" 
-                      className="btn btn-secondary btn-sm"
-                      onClick={() => setShowSaveTemplateModal(true)}
-                      style={{ padding: '4px 10px', fontSize: '0.78rem' }}
-                    >
-                      <Plus size={14} />
-                      {t.saveAsTemplate}
-                    </button>
-                  </div>
-                  <textarea 
-                    className="form-input prompt-textarea" 
-                    value={editedPromptText}
-                    onChange={(e) => setEditedPromptText(e.target.value)}
-                    style={{ minHeight: '340px' }}
-                  />
-                </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleUploadTemplatesToGitHub}
+                  disabled={!githubToken || !githubRepo}
+                  style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '8px' }}
+                >
+                  <Save size={16} />
+                  {language === 'en' ? 'Upload Custom Templates (prompt.json)' : '备份自定义模板至 GitHub (prompt.json)'}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handlePullTemplatesFromGitHub}
+                  disabled={!githubToken || !githubRepo}
+                  style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '8px' }}
+                >
+                  <RefreshCw size={16} />
+                  {language === 'en' ? 'Pull Templates from GitHub' : '从 GitHub 同步/拉取备份模板'}
+                </button>
               </div>
             </section>
           </div>

@@ -37,7 +37,6 @@ function App() {
     return (localStorage.getItem('qianniu_theme') as 'dark' | 'light') || 'dark';
   });
   const [activeTab, setActiveTab] = useState<'generator' | 'library' | 'settings'>('generator');
-  const [settingsTab, setSettingsTab] = useState<'api' | 'templates'>('api');
   const [resultTab, setResultTab] = useState<'text' | 'images'>('text');
 
   // API Config States
@@ -1047,188 +1046,163 @@ function App() {
       )}
 
       {activeTab === 'settings' && (
-        <main className="main-workspace" style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' }}>
-          {/* Sub-tabs Navigation inside Settings Page */}
-          <div className="tabs-navigation" style={{ maxWidth: '500px', width: '100%', margin: '0 auto' }}>
-            <button 
-              type="button"
-              className={`tab-nav-btn ${settingsTab === 'api' ? 'active' : ''}`}
-              onClick={() => setSettingsTab('api')}
-              style={{ flex: 1, justifyContent: 'center' }}
-            >
-              <Settings size={16} />
-              {language === 'en' ? 'API Settings' : '密钥配置'}
-            </button>
-            <button 
-              type="button"
-              className={`tab-nav-btn ${settingsTab === 'templates' ? 'active' : ''}`}
-              onClick={() => setSettingsTab('templates')}
-              style={{ flex: 1, justifyContent: 'center' }}
-            >
-              <Globe size={16} />
-              {language === 'en' ? 'Templates Sync' : '模板备份同步'}
-            </button>
-          </div>
+        <main className="main-workspace" style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
+          <div style={{ maxWidth: '600px', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {/* Card 1: API Config */}
+            <section className="glass-panel glass-card">
+              <h3 className="sidebar-title" style={{ marginBottom: '10px', paddingBottom: '6px' }}>
+                <Settings size={18} className="text-secondary" />
+                {t.settings}
+              </h3>
+              <form onSubmit={handleSaveSettings} style={{ marginTop: '12px' }}>
+                <h4 style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '8px' }}>
+                  {t.apiSettings}
+                </h4>
 
-          {/* Active Sub-tab Content Panel */}
-          <div style={{ maxWidth: '600px', width: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            {settingsTab === 'api' && (
-              <>
-                <section className="glass-panel glass-card">
-                  <h3 className="sidebar-title">
-                    <Settings size={18} className="text-secondary" />
-                    {t.settings}
-                  </h3>
-                  <form onSubmit={handleSaveSettings} style={{ marginTop: '16px' }}>
-                    <h4 style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '12px' }}>
-                      {t.apiSettings}
-                    </h4>
-
-                    {/* Gemini API Key */}
-                    <div className="form-group">
-                      <label className="form-label">{t.geminiKey}</label>
-                      <div style={{ position: 'relative' }}>
-                        <input 
-                          type={showGeminiKey ? "text" : "password"}
-                          className="form-input" 
-                          value={geminiKey}
-                          onChange={(e) => setGeminiKey(e.target.value)}
-                          placeholder={t.geminiKeyPlaceholder}
-                        />
-                        <button 
-                          type="button"
-                          onClick={() => setShowGeminiKey(!showGeminiKey)}
-                          style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', fontSize: '0.8rem' }}
-                        >
-                          {showGeminiKey ? "Hide" : "Show"}
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Gemini Model Select */}
-                    <div className="form-group">
-                      <label className="form-label">{language === 'en' ? 'Gemini Model' : '模型选择'}</label>
-                      <select 
-                        className="form-input form-select"
-                        value={selectedModel}
-                        onChange={(e) => setSelectedModel(e.target.value)}
-                      >
-                        {AVAILABLE_MODELS.map(model => (
-                          <option key={model.id} value={model.id}>{model.name}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <h4 style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', margin: '20px 0 12px 0' }}>
-                      GitHub Storage (BYOK)
-                    </h4>
-
-                    {/* GitHub Token */}
-                    <div className="form-group">
-                      <label className="form-label">{t.githubToken}</label>
-                      <div style={{ position: 'relative' }}>
-                        <input 
-                          type={showGithubToken ? "text" : "password"}
-                          className="form-input" 
-                          value={githubToken}
-                          onChange={(e) => setGithubToken(e.target.value)}
-                          placeholder={t.githubTokenPlaceholder}
-                        />
-                        <button 
-                          type="button"
-                          onClick={() => setShowGithubToken(!showGithubToken)}
-                          style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', fontSize: '0.8rem' }}
-                        >
-                          {showGithubToken ? "Hide" : "Show"}
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* GitHub Repo */}
-                    <div className="form-group">
-                      <label className="form-label">{t.githubRepo}</label>
-                      <input 
-                        type="text" 
-                        className="form-input" 
-                        value={githubRepo}
-                        onChange={(e) => setGithubRepo(e.target.value)}
-                        placeholder={t.githubRepoPlaceholder}
-                      />
-                    </div>
-
-                    {/* GitHub Branch */}
-                    <div className="form-group">
-                      <label className="form-label">{t.githubBranch}</label>
-                      <input 
-                        type="text" 
-                        className="form-input" 
-                        value={githubBranch}
-                        onChange={(e) => setGithubBranch(e.target.value)}
-                        placeholder={t.githubBranchPlaceholder}
-                      />
-                    </div>
-
-                    <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '8px' }}>
-                      <Save size={16} />
-                      {t.saveSettings}
+                {/* Gemini API Key */}
+                <div className="form-group" style={{ marginBottom: '10px' }}>
+                  <label className="form-label">{t.geminiKey}</label>
+                  <div style={{ position: 'relative' }}>
+                    <input 
+                      type={showGeminiKey ? "text" : "password"}
+                      className="form-input" 
+                      value={geminiKey}
+                      onChange={(e) => setGeminiKey(e.target.value)}
+                      placeholder={t.geminiKeyPlaceholder}
+                      style={{ paddingRight: '60px' }}
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => setShowGeminiKey(!showGeminiKey)}
+                      style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', fontSize: '0.78rem' }}
+                    >
+                      {showGeminiKey ? "Hide" : "Show"}
                     </button>
-                  </form>
-                </section>
-
-                {/* Warning banner inside settings if missing keys */}
-                {(!geminiKey || !githubToken || !githubRepo) && (
-                  <div className="glass-panel" style={{ padding: '16px', background: 'var(--color-error-bg)', borderColor: 'rgba(239, 68, 68, 0.2)', fontSize: '0.82rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <span style={{ fontWeight: 'bold', color: 'var(--color-error)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      ⚠️ {language === 'en' ? 'Setup Required' : '需先配置 API 秘钥'}
-                    </span>
-                    <p style={{ color: 'var(--text-secondary)' }}>
-                      {language === 'en' 
-                        ? 'Please enter your Gemini API Key and GitHub settings to unlock generation and saving.'
-                        : '请在上方配置 Gemini API Key 以及 GitHub 仓库，即可一键生成物料并上传管理商品素材。'}
-                    </p>
                   </div>
-                )}
-              </>
-            )}
-
-            {settingsTab === 'templates' && (
-              <section className="glass-panel glass-card inputs-grid">
-                <div className="panel-header">
-                  <h2 className="panel-title">
-                    <Globe size={18} className="text-secondary" />
-                    {language === 'en' ? 'Template Backup & Sync' : '提示词模板备份与同步'}
-                  </h2>
                 </div>
-                
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '16px', lineHeight: '1.5' }}>
+
+                {/* Gemini Model Select */}
+                <div className="form-group" style={{ marginBottom: '10px' }}>
+                  <label className="form-label">{language === 'en' ? 'Gemini Model' : '模型选择'}</label>
+                  <select 
+                    className="form-input form-select"
+                    value={selectedModel}
+                    onChange={(e) => setSelectedModel(e.target.value)}
+                  >
+                    {AVAILABLE_MODELS.map(model => (
+                      <option key={model.id} value={model.id}>{model.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <h4 style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', margin: '14px 0 8px 0' }}>
+                  GitHub Storage (BYOK)
+                </h4>
+
+                {/* GitHub Token */}
+                <div className="form-group" style={{ marginBottom: '10px' }}>
+                  <label className="form-label">{t.githubToken}</label>
+                  <div style={{ position: 'relative' }}>
+                    <input 
+                      type={showGithubToken ? "text" : "password"}
+                      className="form-input" 
+                      value={githubToken}
+                      onChange={(e) => setGithubToken(e.target.value)}
+                      placeholder={t.githubTokenPlaceholder}
+                      style={{ paddingRight: '60px' }}
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => setShowGithubToken(!showGithubToken)}
+                      style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', fontSize: '0.78rem' }}
+                    >
+                      {showGithubToken ? "Hide" : "Show"}
+                    </button>
+                  </div>
+                </div>
+
+                {/* GitHub Repo */}
+                <div className="form-group" style={{ marginBottom: '10px' }}>
+                  <label className="form-label">{t.githubRepo}</label>
+                  <input 
+                    type="text" 
+                    className="form-input" 
+                    value={githubRepo}
+                    onChange={(e) => setGithubRepo(e.target.value)}
+                    placeholder={t.githubRepoPlaceholder}
+                  />
+                </div>
+
+                {/* GitHub Branch */}
+                <div className="form-group" style={{ marginBottom: '14px' }}>
+                  <label className="form-label">{t.githubBranch}</label>
+                  <input 
+                    type="text" 
+                    className="form-input" 
+                    value={githubBranch}
+                    onChange={(e) => setGithubBranch(e.target.value)}
+                    placeholder={t.githubBranchPlaceholder}
+                  />
+                </div>
+
+                <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
+                  <Save size={16} />
+                  {t.saveSettings}
+                </button>
+              </form>
+            </section>
+
+            {/* Card 2: Prompt Template Syncing */}
+            <section className="glass-panel glass-card inputs-grid">
+              <div className="panel-header" style={{ marginBottom: '10px', paddingBottom: '6px' }}>
+                <h2 className="panel-title">
+                  <Globe size={16} className="text-secondary" />
+                  {language === 'en' ? 'Template Backup & Sync' : '提示词模板备份与同步'}
+                </h2>
+              </div>
+              
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '12px', lineHeight: '1.4' }}>
+                {language === 'en' 
+                  ? 'Backup your custom prompt templates to your GitHub repository as prompt.json, or pull existing templates to this browser.'
+                  : '将您自定义的提示词模板备份同步至 GitHub 仓库（prompt.json），或从仓库拉取模板覆盖本地存储。'}
+              </p>
+
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={handleUploadTemplatesToGitHub}
+                  disabled={!githubToken || !githubRepo}
+                  style={{ flex: 1, display: 'flex', justifyContent: 'center', gap: '6px' }}
+                >
+                  <Save size={14} />
+                  {language === 'en' ? 'Upload to GitHub' : '备份至 GitHub'}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={handlePullTemplatesFromGitHub}
+                  disabled={!githubToken || !githubRepo}
+                  style={{ flex: 1, display: 'flex', justifyContent: 'center', gap: '6px' }}
+                >
+                  <RefreshCw size={14} />
+                  {language === 'en' ? 'Pull from GitHub' : '从 GitHub 拉取'}
+                </button>
+              </div>
+            </section>
+
+            {/* Warning banner inside settings if missing keys */}
+            {(!geminiKey || !githubToken || !githubRepo) && (
+              <div className="glass-panel" style={{ padding: '12px', background: 'var(--color-error-bg)', borderColor: 'rgba(239, 68, 68, 0.2)', fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <span style={{ fontWeight: 'bold', color: 'var(--color-error)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  ⚠️ {language === 'en' ? 'Setup Required' : '需先配置 API 秘钥'}
+                </span>
+                <p style={{ color: 'var(--text-secondary)' }}>
                   {language === 'en' 
-                    ? 'Backup your custom prompt templates to your GitHub repository as prompt.json, or pull existing templates to this browser.'
-                    : '将您自定义的提示词模板以 prompt.json 备份同步至绑定的 GitHub 仓库，或从 GitHub 拉取已有模板到此浏览器中。'}
+                    ? 'Please enter your Gemini API Key and GitHub settings to unlock generation and saving.'
+                    : '请在上方配置 Gemini API Key 以及 GitHub 仓库，即可一键生成物料并上传管理商品素材。'}
                 </p>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={handleUploadTemplatesToGitHub}
-                    disabled={!githubToken || !githubRepo}
-                    style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '8px' }}
-                  >
-                    <Save size={16} />
-                    {language === 'en' ? 'Upload Custom Templates (prompt.json)' : '备份自定义模板至 GitHub (prompt.json)'}
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={handlePullTemplatesFromGitHub}
-                    disabled={!githubToken || !githubRepo}
-                    style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '8px' }}
-                  >
-                    <RefreshCw size={16} />
-                    {language === 'en' ? 'Pull Templates from GitHub' : '从 GitHub 同步/拉取备份模板'}
-                  </button>
-                </div>
-              </section>
+              </div>
             )}
           </div>
         </main>

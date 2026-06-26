@@ -129,27 +129,27 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Inputs & Form Controls */
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 .form-label {
   display: block;
   font-family: var(--font-heading);
-  font-size: 0.875rem;
-  font-weight: 550;
-  margin-bottom: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 4px;
   color: var(--text-primary);
 }
 
 .form-input {
   width: 100%;
-  padding: 12px 16px;
-  border-radius: 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
   background: var(--input-bg);
   border: 1px solid var(--input-border);
   color: var(--text-primary);
   font-family: inherit;
-  font-size: 0.95rem;
+  font-size: 0.875rem;
   transition: all 0.2s ease;
   box-shadow: var(--inset-shadow);
 }
@@ -166,16 +166,16 @@ h1, h2, h3, h4, h5, h6 {
 
 textarea.form-input {
   resize: vertical;
-  min-height: 100px;
+  min-height: 60px;
 }
 
 .form-select {
   appearance: none;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
   background-repeat: no-repeat;
-  background-position: right 16px center;
-  background-size: 16px;
-  padding-right: 44px;
+  background-position: right 12px center;
+  background-size: 14px;
+  padding-right: 36px;
 }
 
 /* Buttons */
@@ -183,11 +183,11 @@ textarea.form-input {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 12px 20px;
-  border-radius: 10px;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 6px;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -364,9 +364,9 @@ textarea.form-input {
 /* Work Area (Main Panel) */
 .main-workspace {
   display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  padding: 24px;
-  gap: 24px;
+  grid-template-columns: 3fr 7fr;
+  padding: 16px;
+  gap: 16px;
   overflow-y: auto;
 }
 
@@ -379,30 +379,30 @@ textarea.form-input {
 .workspace-column {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
 }
 
 .panel-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   border-bottom: 1px solid var(--panel-border);
-  padding-bottom: 12px;
+  padding-bottom: 8px;
 }
 
 .panel-title {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 1.15rem;
+  gap: 6px;
+  font-size: 1.05rem;
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .glass-card {
-  padding: 24px;
-  border-radius: 16px;
+  padding: 14px;
+  border-radius: 12px;
   background: var(--panel-bg);
   border: 1px solid var(--panel-border);
 }
@@ -427,11 +427,11 @@ textarea.form-input {
 
 /* Output Cards Details */
 .output-card {
-  border-radius: 12px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--panel-border);
-  padding: 18px;
-  margin-bottom: 16px;
+  padding: 12px;
+  margin-bottom: 12px;
   transition: all 0.2s ease;
   position: relative;
 }

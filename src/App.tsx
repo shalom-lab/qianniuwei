@@ -613,17 +613,17 @@ function App() {
         <main className="main-workspace">
           {/* Left Side: Product input form & prompt template configurations */}
           <div className="workspace-column">
-            {/* Card 1: Product details */}
             <section className="glass-panel glass-card inputs-grid">
-              <div className="panel-header">
+              {/* Product Basic Info Header */}
+              <div className="panel-header" style={{ marginBottom: '10px', paddingBottom: '6px' }}>
                 <h2 className="panel-title">
-                  <FileText size={18} className="text-secondary" />
+                  <FileText size={16} className="text-secondary" />
                   {t.productDetails}
                 </h2>
               </div>
 
               {/* Product Name */}
-              <div className="form-group" style={{ marginBottom: '12px' }}>
+              <div className="form-group" style={{ marginBottom: '8px' }}>
                 <label className="form-label">{t.productName} *</label>
                 <input 
                   type="text" 
@@ -636,7 +636,7 @@ function App() {
               </div>
 
               {/* Category & Channel Row */}
-              <div className="horizontal-inputs" style={{ marginBottom: '12px' }}>
+              <div className="horizontal-inputs" style={{ marginBottom: '8px' }}>
                 <div className="form-group" style={{ marginBottom: 0 }}>
                   <label className="form-label">{t.category} *</label>
                   <input 
@@ -667,29 +667,27 @@ function App() {
               </div>
 
               {/* Keywords */}
-              <div className="form-group" style={{ marginBottom: 0 }}>
+              <div className="form-group" style={{ marginBottom: '10px' }}>
                 <label className="form-label">{t.keywords}</label>
                 <textarea 
                   className="form-input" 
                   value={keywords}
                   onChange={(e) => setKeywords(e.target.value)}
                   placeholder={t.keywordsPlaceholder}
-                  style={{ minHeight: '60px' }}
+                  style={{ minHeight: '44px' }}
                 />
               </div>
-            </section>
 
-            {/* Card 2: AI Prompt Config */}
-            <section className="glass-panel glass-card inputs-grid">
-              <div className="panel-header" style={{ marginBottom: '12px', paddingBottom: '8px' }}>
+              {/* Prompt Template Config Header */}
+              <div className="panel-header" style={{ marginTop: '4px', marginBottom: '8px', paddingBottom: '4px' }}>
                 <h2 className="panel-title">
-                  <Sparkles size={18} className="text-secondary" />
+                  <Sparkles size={16} className="text-secondary" />
                   {t.promptConfig}
                 </h2>
               </div>
 
               {/* Template Selection Dropdown with Delete button if custom */}
-              <div className="form-group" style={{ marginBottom: '12px' }}>
+              <div className="form-group" style={{ marginBottom: '8px' }}>
                 <label className="form-label">{t.promptTemplate}</label>
                 <div className="prompt-templates-row" style={{ marginBottom: 0 }}>
                   <select
@@ -713,9 +711,9 @@ function App() {
                         onClick={handleDeleteTemplate} 
                         className="btn btn-secondary btn-danger"
                         title={t.deleteTemplate}
-                        style={{ padding: '0 12px' }}
+                        style={{ padding: '0 10px' }}
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={14} />
                       </button>
                     );
                   })()}
@@ -723,16 +721,16 @@ function App() {
               </div>
 
               {/* Prompt editing textarea */}
-              <div className="form-group" style={{ marginBottom: '16px' }}>
-                <div className="flex-between" style={{ marginBottom: '6px' }}>
+              <div className="form-group" style={{ marginBottom: '12px' }}>
+                <div className="flex-between" style={{ marginBottom: '4px' }}>
                   <label className="form-label" style={{ margin: 0 }}>{t.editPrompt}</label>
                   <button 
                     type="button" 
                     className="btn btn-secondary btn-sm"
                     onClick={() => setShowSaveTemplateModal(true)}
-                    style={{ padding: '4px 10px', fontSize: '0.78rem' }}
+                    style={{ padding: '2px 8px', fontSize: '0.72rem' }}
                   >
-                    <Plus size={14} />
+                    <Plus size={12} />
                     {t.saveAsTemplate}
                   </button>
                 </div>
@@ -740,17 +738,18 @@ function App() {
                   className="form-input prompt-textarea" 
                   value={editedPromptText}
                   onChange={(e) => setEditedPromptText(e.target.value)}
-                  style={{ minHeight: '180px', fontSize: '0.82rem', fontFamily: 'monospace' }}
+                  style={{ minHeight: '130px', fontSize: '0.78rem', fontFamily: 'monospace' }}
                   placeholder="请输入提示词内容，可使用 {productName}, {category}, {keywords}, {channel} 作为占位符..."
                 />
               </div>
 
               {/* Bottom Actions */}
-              <div className="flex-between" style={{ gap: '12px' }}>
+              <div className="flex-between" style={{ gap: '10px' }}>
                 <button 
                   type="button" 
                   className="btn btn-secondary" 
                   onClick={() => handleResetForm(true)}
+                  style={{ padding: '6px 12px' }}
                 >
                   {t.clearBtn}
                 </button>
@@ -760,9 +759,9 @@ function App() {
                   className="btn btn-primary" 
                   onClick={handleGenerate}
                   disabled={isGenerating || !geminiKey}
-                  style={{ flex: 1 }}
+                  style={{ flex: 1, padding: '6px 12px' }}
                 >
-                  <Sparkles size={18} />
+                  <Sparkles size={16} />
                   {isGenerating ? t.generatingBtn : t.generateBtn}
                 </button>
               </div>
@@ -874,7 +873,7 @@ function App() {
                         value={generatedDescription}
                         onChange={(e) => setGeneratedDescription(e.target.value)}
                         placeholder={language === 'en' ? 'Waiting for generation...' : '等待 AI 一键生成描述文案...'}
-                        style={{ minHeight: '240px' }}
+                        style={{ minHeight: '180px' }}
                       />
                     )}
                   </div>

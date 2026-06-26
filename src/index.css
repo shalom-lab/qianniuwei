@@ -201,8 +201,8 @@ textarea.form-input {
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
   filter: brightness(1.1);
 }
 
@@ -217,14 +217,17 @@ textarea.form-input {
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(99, 102, 241, 0.1);
+  border-color: rgba(99, 102, 241, 0.4);
 }
 
 .light-mode .btn-secondary {
   background: rgba(0, 0, 0, 0.03);
 }
 .light-mode .btn-secondary:hover {
-  background: rgba(0, 0, 0, 0.06);
+  background: rgba(99, 102, 241, 0.04);
+  border-color: rgba(99, 102, 241, 0.4);
+  color: var(--brand-primary);
 }
 
 .btn-success {
@@ -805,12 +808,13 @@ textarea.form-input {
 }
 
 .tab-nav-btn:hover {
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  background: rgba(99, 102, 241, 0.12);
 }
 
 .light-mode .tab-nav-btn:hover {
-  background: rgba(0, 0, 0, 0.04);
+  color: var(--brand-primary);
+  background: rgba(99, 102, 241, 0.06);
 }
 
 .tab-nav-btn.active {

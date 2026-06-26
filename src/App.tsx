@@ -36,6 +36,7 @@ function App() {
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     return (localStorage.getItem('qianniu_theme') as 'dark' | 'light') || 'dark';
   });
+  const [activeTab, setActiveTab] = useState<'generator' | 'library' | 'settings'>('generator');
 
   // API Config States
   const [geminiKey, setGeminiKey] = useState(() => localStorage.getItem('qianniu_gemini_key') || '');
@@ -337,7 +338,7 @@ function App() {
       setGeneratedDetailImagePrompt(product.detailImagePrompt || '');
 
       // Load status (we only load, not locking active product, so saving will create new product)
-
+      setActiveTab('generator');
       showToast(t.loadSuccess, 'success');
     } catch (e: any) {
       showToast(e.message || 'Failed to load product details', 'error');
@@ -540,6 +541,31 @@ function App() {
         </div>
 
         <div className="header-actions">
+          {/* Tabs Navigation */}
+          <div className="tabs-navigation">
+            <button 
+              className={`tab-nav-btn ${activeTab === 'generator' ? 'active' : ''}`}
+              onClick={() => setActiveTab('generator')}
+            >
+              <Sparkles size={16} />
+              {language === 'en' ? 'Workspace' : '物料生成'}
+            </button>
+            <button 
+              className={`tab-nav-btn ${activeTab === 'library' ? 'active' : ''}`}
+              onClick={() => setActiveTab('library')}
+            >
+              <FolderOpen size={16} />
+              {language === 'en' ? 'Asset Library' : '商品资产库'}
+            </button>
+            <button 
+              className={`tab-nav-btn ${activeTab === 'settings' ? 'active' : ''}`}
+              onClick={() => setActiveTab('settings')}
+            >
+              <Settings size={16} />
+              {language === 'en' ? 'Settings & Templates' : '配置 & 模版'}
+            </button>
+          </div>
+
           {/* i18n Select */}
           <div className="flex-align-center">
             <Globe size={16} className="text-secondary" />
@@ -581,199 +607,79 @@ function App() {
         </div>
       </header>
 
-      {/* Sidebar: Config Center & Preset Templates */}
-      <aside className="sidebar">
-        {/* Settings Panel */}
-        <section className="glass-panel glass-card">
-          <h3 className="sidebar-title">
-            <Settings size={18} className="text-secondary" />
-            {t.settings}
-          </h3>
-          <form onSubmit={handleSaveSettings} style={{ marginTop: '16px' }}>
-            <h4 style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '12px' }}>
-              {t.apiSettings}
-            </h4>
-
-            {/* Gemini API Key */}
-            <div className="form-group">
-              <label className="form-label">{t.geminiKey}</label>
-              <div style={{ position: 'relative' }}>
-                <input 
-                  type={showGeminiKey ? "text" : "password"}
-                  className="form-input" 
-                  value={geminiKey}
-                  onChange={(e) => setGeminiKey(e.target.value)}
-                  placeholder={t.geminiKeyPlaceholder}
-                />
-                <button 
-                  type="button"
-                  onClick={() => setShowGeminiKey(!showGeminiKey)}
-                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', fontSize: '0.8rem' }}
-                >
-                  {showGeminiKey ? "Hide" : "Show"}
-                </button>
+      {activeTab === 'generator' && (
+        <main className="main-workspace">
+          {/* Left Side: Product input form & prompt template configurations */}
+          <div className="workspace-column">
+            <section className="glass-panel glass-card inputs-grid">
+              <div className="panel-header">
+                <h2 className="panel-title">
+                  <FileText size={18} className="text-secondary" />
+                  {t.productDetails}
+                </h2>
               </div>
-            </div>
 
-            {/* Gemini Model Select */}
-            <div className="form-group">
-              <label className="form-label">{language === 'en' ? 'Gemini Model' : '模型选择'}</label>
-              <select 
-                className="form-input form-select"
-                value={selectedModel}
-                onChange={(e) => setSelectedModel(e.target.value)}
-              >
-                {AVAILABLE_MODELS.map(model => (
-                  <option key={model.id} value={model.id}>{model.name}</option>
-                ))}
-              </select>
-            </div>
-
-            <h4 style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', margin: '20px 0 12px 0' }}>
-              GitHub Storage (BYOK)
-            </h4>
-
-            {/* GitHub Token */}
-            <div className="form-group">
-              <label className="form-label">{t.githubToken}</label>
-              <div style={{ position: 'relative' }}>
-                <input 
-                  type={showGithubToken ? "text" : "password"}
-                  className="form-input" 
-                  value={githubToken}
-                  onChange={(e) => setGithubToken(e.target.value)}
-                  placeholder={t.githubTokenPlaceholder}
-                />
-                <button 
-                  type="button"
-                  onClick={() => setShowGithubToken(!showGithubToken)}
-                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', fontSize: '0.8rem' }}
-                >
-                  {showGithubToken ? "Hide" : "Show"}
-                </button>
-              </div>
-            </div>
-
-            {/* GitHub Repo */}
-            <div className="form-group">
-              <label className="form-label">{t.githubRepo}</label>
-              <input 
-                type="text" 
-                className="form-input" 
-                value={githubRepo}
-                onChange={(e) => setGithubRepo(e.target.value)}
-                placeholder={t.githubRepoPlaceholder}
-              />
-            </div>
-
-            {/* GitHub Branch */}
-            <div className="form-group">
-              <label className="form-label">{t.githubBranch}</label>
-              <input 
-                type="text" 
-                className="form-input" 
-                value={githubBranch}
-                onChange={(e) => setGithubBranch(e.target.value)}
-                placeholder={t.githubBranchPlaceholder}
-              />
-            </div>
-
-            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '8px' }}>
-              <Save size={16} />
-              {t.saveSettings}
-            </button>
-          </form>
-        </section>
-
-        {/* Info Banner if missing settings */}
-        {(!geminiKey || !githubToken || !githubRepo) && (
-          <div className="glass-panel" style={{ padding: '16px', background: 'var(--color-error-bg)', borderColor: 'rgba(239, 68, 68, 0.2)', fontSize: '0.82rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <span style={{ fontWeight: 'bold', color: 'var(--color-error)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              ⚠️ {language === 'en' ? 'Setup Required' : '需先配置 API 秘钥'}
-            </span>
-            <p style={{ color: 'var(--text-secondary)' }}>
-              {language === 'en' 
-                ? 'Please enter your Gemini API Key and GitHub settings to unlock generation and saving.'
-                : '请在上方配置 Gemini API Key 以及 GitHub 仓库，即可一键生成物料并上传管理商品素材。'}
-            </p>
-          </div>
-        )}
-      </aside>
-
-      {/* Main Workspace */}
-      <main className="main-workspace">
-        {/* Left Side: Product input form & prompt template configurations */}
-        <div className="workspace-column">
-          <section className="glass-panel glass-card inputs-grid">
-            <div className="panel-header">
-              <h2 className="panel-title">
-                <FileText size={18} className="text-secondary" />
-                {t.productDetails}
-              </h2>
-            </div>
-
-            {/* Product Name */}
-            <div className="form-group">
-              <label className="form-label">{t.productName} *</label>
-              <input 
-                type="text" 
-                className="form-input" 
-                value={productName}
-                onChange={(e) => setProductName(e.target.value)}
-                placeholder={t.productNamePlaceholder}
-                required
-              />
-            </div>
-
-            {/* Category & Channel Row */}
-            <div className="horizontal-inputs">
+              {/* Product Name */}
               <div className="form-group">
-                <label className="form-label">{t.category} *</label>
+                <label className="form-label">{t.productName} *</label>
                 <input 
                   type="text" 
                   className="form-input" 
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  placeholder={t.categoryPlaceholder}
+                  value={productName}
+                  onChange={(e) => setProductName(e.target.value)}
+                  placeholder={t.productNamePlaceholder}
                   required
                 />
               </div>
 
-              <div className="form-group">
-                <label className="form-label">{t.channel}</label>
-                <select 
-                  className="form-input form-select"
-                  value={channel}
-                  onChange={(e) => setChannel(e.target.value)}
-                >
-                  <option value="淘宝">淘宝 (Taobao)</option>
-                  <option value="天猫">天猫 (Tmall)</option>
-                  <option value="京东">京东 (JD.com)</option>
-                  <option value="拼多多">拼多多 (Pinduoduo)</option>
-                  <option value="小红书">小红书 (RED)</option>
-                  <option value="抖音">抖音 (Douyin)</option>
-                </select>
+              {/* Category & Channel Row */}
+              <div className="horizontal-inputs">
+                <div className="form-group">
+                  <label className="form-label">{t.category} *</label>
+                  <input 
+                    type="text" 
+                    className="form-input" 
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    placeholder={t.categoryPlaceholder}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">{t.channel}</label>
+                  <select 
+                    className="form-input form-select"
+                    value={channel}
+                    onChange={(e) => setChannel(e.target.value)}
+                  >
+                    <option value="淘宝">淘宝 (Taobao)</option>
+                    <option value="天猫">天猫 (Tmall)</option>
+                    <option value="京东">京东 (JD.com)</option>
+                    <option value="拼多多">拼多多 (Pinduoduo)</option>
+                    <option value="小红书">小红书 (RED)</option>
+                    <option value="抖音">抖音 (Douyin)</option>
+                  </select>
+                </div>
               </div>
-            </div>
 
-            {/* Keywords */}
-            <div className="form-group">
-              <label className="form-label">{t.keywords}</label>
-              <textarea 
-                className="form-input" 
-                value={keywords}
-                onChange={(e) => setKeywords(e.target.value)}
-                placeholder={t.keywordsPlaceholder}
-                style={{ minHeight: '80px' }}
-              />
-            </div>
+              {/* Keywords */}
+              <div className="form-group">
+                <label className="form-label">{t.keywords}</label>
+                <textarea 
+                  className="form-input" 
+                  value={keywords}
+                  onChange={(e) => setKeywords(e.target.value)}
+                  placeholder={t.keywordsPlaceholder}
+                  style={{ minHeight: '80px' }}
+                />
+              </div>
 
-            {/* Prompt Template Customizer block */}
-            <div className="prompt-area" style={{ marginTop: '12px' }}>
-              <label className="form-label">{t.promptConfig}</label>
-              <div className="prompt-templates-row">
+              {/* Simplified Template Selection (No editing text area here) */}
+              <div className="form-group" style={{ marginTop: '12px' }}>
+                <label className="form-label">{t.promptConfig}</label>
                 <select
-                  className="form-input form-select prompt-templates-select"
+                  className="form-input form-select"
                   value={selectedTemplateId}
                   onChange={(e) => handleTemplateChange(e.target.value)}
                 >
@@ -783,334 +689,490 @@ function App() {
                     </option>
                   ))}
                 </select>
-                
-                {/* Delete custom template */}
-                {(() => {
-                  const currentTpl = templatesList.find(x => x.id === selectedTemplateId);
-                  return currentTpl && !currentTpl.isSystem && (
-                    <button 
-                      type="button" 
-                      onClick={handleDeleteTemplate} 
-                      className="btn btn-secondary btn-danger"
-                      title={t.deleteTemplate}
-                      style={{ padding: '0 12px' }}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  );
-                })()}
               </div>
 
-              <div className="prompt-templates-row" style={{ marginTop: '8px', marginBottom: '8px' }}>
-                <button
-                  type="button"
-                  className="btn btn-secondary btn-sm"
-                  onClick={handleUploadTemplatesToGitHub}
-                  disabled={!githubToken || !githubRepo}
-                  style={{ flex: 1, fontSize: '0.8rem' }}
-                >
-                  <Save size={14} />
-                  {language === 'en' ? 'Upload Templates (prompt.json)' : '上传模板至 GitHub'}
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-secondary btn-sm"
-                  onClick={handlePullTemplatesFromGitHub}
-                  disabled={!githubToken || !githubRepo}
-                  style={{ flex: 1, fontSize: '0.8rem' }}
-                >
-                  <RefreshCw size={14} />
-                  {language === 'en' ? 'Pull from GitHub' : '从 GitHub 拉取模板'}
-                </button>
-              </div>
-
-              <div className="form-group">
-                <div className="flex-between" style={{ marginBottom: '6px' }}>
-                  <label className="form-label" style={{ margin: 0 }}>{t.editPrompt}</label>
-                  <button 
-                    type="button" 
-                    className="btn btn-secondary btn-sm"
-                    onClick={() => setShowSaveTemplateModal(true)}
-                    style={{ padding: '4px 10px', fontSize: '0.78rem' }}
-                  >
-                    <Plus size={14} />
-                    {t.saveAsTemplate}
-                  </button>
-                </div>
-                <textarea 
-                  className="form-input prompt-textarea" 
-                  value={editedPromptText}
-                  onChange={(e) => setEditedPromptText(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Bottom Actions */}
-            <div className="flex-between" style={{ marginTop: '16px', gap: '12px' }}>
-              <button 
-                type="button" 
-                className="btn btn-secondary" 
-                onClick={() => handleResetForm(true)}
-              >
-                {t.clearBtn}
-              </button>
-
-              <button 
-                type="button" 
-                className="btn btn-primary" 
-                onClick={handleGenerate}
-                disabled={isGenerating || !geminiKey}
-                style={{ flex: 1 }}
-              >
-                <Sparkles size={18} />
-                {isGenerating ? t.generatingBtn : t.generateBtn}
-              </button>
-            </div>
-          </section>
-        </div>
-
-        {/* Right Side: Generate output results */}
-        <div className="workspace-column">
-          <section className="glass-panel glass-card">
-            <div className="panel-header">
-              <h2 className="panel-title">
-                <Sparkles size={18} className="text-secondary" />
-                {t.resultsTitle}
-              </h2>
-              {/* GitHub Save Trigger */}
-              <button 
-                type="button" 
-                className="btn btn-success btn-sm" 
-                onClick={handleSaveToGitHub}
-                disabled={isSaving || !githubToken || !githubRepo || !generatedTitle}
-              >
-                <Save size={16} />
-                {isSaving ? t.savingBtn : t.saveToGithubBtn}
-              </button>
-            </div>
-
-            {/* Result: SEO Title */}
-            <div className="output-card">
-              <div className="output-header">
-                <div>
-                  <div className="output-label">
-                    <FileText size={15} style={{ color: 'var(--brand-primary)' }} />
-                    {t.seoTitle}
-                  </div>
-                  <div className="output-subtitle">{t.seoTitleDesc}</div>
-                </div>
+              {/* Bottom Actions */}
+              <div className="flex-between" style={{ marginTop: '16px', gap: '12px' }}>
                 <button 
                   type="button" 
-                  className="btn btn-secondary btn-sm" 
-                  onClick={() => handleCopy(generatedTitle, 'title')}
-                  disabled={!generatedTitle}
+                  className="btn btn-secondary" 
+                  onClick={() => handleResetForm(true)}
                 >
-                  {copiedField === 'title' ? <Check size={14} style={{ color: 'var(--color-success)' }} /> : <Copy size={14} />}
-                  {copiedField === 'title' ? (language === 'en' ? 'Copied' : '已复制') : t.copyBtn}
+                  {t.clearBtn}
                 </button>
-              </div>
-              {isGenerating ? (
-                <div className="shimmer-text"></div>
-              ) : (
-                <input 
-                  type="text"
-                  className="form-input output-content output-content-title"
-                  value={generatedTitle}
-                  onChange={(e) => setGeneratedTitle(e.target.value)}
-                  placeholder={language === 'en' ? 'Waiting for generation...' : '等待 AI 一键生成物料...'}
-                />
-              )}
-            </div>
 
-            {/* Result: Text Description */}
-            <div className="output-card">
-              <div className="output-header">
-                <div>
-                  <div className="output-label">
-                    <FileText size={15} style={{ color: 'var(--brand-secondary)' }} />
-                    {t.description}
-                  </div>
-                  <div className="output-subtitle">{t.descriptionDesc}</div>
-                </div>
                 <button 
                   type="button" 
-                  className="btn btn-secondary btn-sm" 
-                  onClick={() => handleCopy(generatedDescription, 'desc')}
-                  disabled={!generatedDescription}
+                  className="btn btn-primary" 
+                  onClick={handleGenerate}
+                  disabled={isGenerating || !geminiKey}
+                  style={{ flex: 1 }}
                 >
-                  {copiedField === 'desc' ? <Check size={14} style={{ color: 'var(--color-success)' }} /> : <Copy size={14} />}
-                  {copiedField === 'desc' ? (language === 'en' ? 'Copied' : '已复制') : t.copyBtn}
+                  <Sparkles size={18} />
+                  {isGenerating ? t.generatingBtn : t.generateBtn}
                 </button>
               </div>
-              {isGenerating ? (
-                <div className="shimmer-text shimmer-desc"></div>
-              ) : (
-                <textarea
-                  className="form-input output-content"
-                  value={generatedDescription}
-                  onChange={(e) => setGeneratedDescription(e.target.value)}
-                  placeholder={language === 'en' ? 'Waiting for generation...' : '等待 AI 一键生成描述文案...'}
-                  style={{ minHeight: '160px' }}
-                />
-              )}
-            </div>
-
-            {/* Result: Main Image Prompt */}
-            <div className="output-card">
-              <div className="output-header">
-                <div>
-                  <div className="output-label">
-                    <Image size={15} style={{ color: 'var(--brand-tertiary)' }} />
-                    {t.mainImagePrompt}
-                  </div>
-                  <div className="output-subtitle">{t.mainImagePromptDesc}</div>
-                </div>
-                <button 
-                  type="button" 
-                  className="btn btn-secondary btn-sm" 
-                  onClick={() => handleCopy(generatedMainImagePrompt, 'mainImage')}
-                  disabled={!generatedMainImagePrompt}
-                >
-                  {copiedField === 'mainImage' ? <Check size={14} style={{ color: 'var(--color-success)' }} /> : <Copy size={14} />}
-                  {copiedField === 'mainImage' ? (language === 'en' ? 'Copied' : '已复制') : t.copyBtn}
-                </button>
-              </div>
-              {isGenerating ? (
-                <div className="shimmer-text"></div>
-              ) : (
-                <textarea
-                  className="form-input output-content"
-                  value={generatedMainImagePrompt}
-                  onChange={(e) => setGeneratedMainImagePrompt(e.target.value)}
-                  placeholder={language === 'en' ? 'Waiting for generation...' : '等待 AI 一键生成主图绘图词...'}
-                  style={{ minHeight: '70px', fontFamily: 'monospace', fontSize: '0.82rem' }}
-                />
-              )}
-            </div>
-
-            {/* Result: Detail Image Prompt */}
-            <div className="output-card">
-              <div className="output-header">
-                <div>
-                  <div className="output-label">
-                    <Image size={15} style={{ color: 'var(--brand-primary)' }} />
-                    {t.detailImagePrompt}
-                  </div>
-                  <div className="output-subtitle">{t.detailImagePromptDesc}</div>
-                </div>
-                <button 
-                  type="button" 
-                  className="btn btn-secondary btn-sm" 
-                  onClick={() => handleCopy(generatedDetailImagePrompt, 'detailImage')}
-                  disabled={!generatedDetailImagePrompt}
-                >
-                  {copiedField === 'detailImage' ? <Check size={14} style={{ color: 'var(--color-success)' }} /> : <Copy size={14} />}
-                  {copiedField === 'detailImage' ? (language === 'en' ? 'Copied' : '已复制') : t.copyBtn}
-                </button>
-              </div>
-              {isGenerating ? (
-                <div className="shimmer-text"></div>
-              ) : (
-                <textarea
-                  className="form-input output-content"
-                  value={generatedDetailImagePrompt}
-                  onChange={(e) => setGeneratedDetailImagePrompt(e.target.value)}
-                  placeholder={language === 'en' ? 'Waiting for generation...' : '等待 AI 一键生成详情图绘图词...'}
-                  style={{ minHeight: '70px', fontFamily: 'monospace', fontSize: '0.82rem' }}
-                />
-              )}
-            </div>
-          </section>
-        </div>
-
-        {/* Bottom Section: CMS Assets Dashboard */}
-        <section className="glass-panel glass-card cms-dashboard">
-          <div className="cms-header">
-            <h2 className="panel-title">
-              <FolderOpen size={18} className="text-secondary" />
-              {t.savedProducts}
-            </h2>
-            
-            <div className="cms-controls">
-              <div style={{ position: 'relative', flex: 1 }}>
-                <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} />
-                <input 
-                  type="text" 
-                  className="form-input" 
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder={t.searchPlaceholder}
-                  style={{ paddingLeft: '36px' }}
-                />
-              </div>
-
-              <button 
-                type="button" 
-                className="btn btn-secondary" 
-                onClick={loadSavedProductsFromGitHub}
-                disabled={isLoadingProducts || !githubToken || !githubRepo}
-              >
-                <RefreshCw size={14} className={isLoadingProducts ? "animate-spin" : ""} />
-                {t.refreshBtn}
-              </button>
-            </div>
+            </section>
           </div>
 
-          {/* CMS Listings */}
-          {isLoadingProducts ? (
-            <div className="cms-empty">
-              <RefreshCw size={24} className="animate-spin" />
-              <p>{language === 'en' ? 'Loading assets list from GitHub...' : '正在从 GitHub 载入资产列表...'}</p>
+          {/* Right Side: Generate output results */}
+          <div className="workspace-column">
+            <section className="glass-panel glass-card">
+              <div className="panel-header">
+                <h2 className="panel-title">
+                  <Sparkles size={18} className="text-secondary" />
+                  {t.resultsTitle}
+                </h2>
+                {/* GitHub Save Trigger */}
+                <button 
+                  type="button" 
+                  className="btn btn-success btn-sm" 
+                  onClick={handleSaveToGitHub}
+                  disabled={isSaving || !githubToken || !githubRepo || !generatedTitle}
+                >
+                  <Save size={16} />
+                  {isSaving ? t.savingBtn : t.saveToGithubBtn}
+                </button>
+              </div>
+
+              {/* Result: SEO Title */}
+              <div className="output-card">
+                <div className="output-header">
+                  <div>
+                    <div className="output-label">
+                      <FileText size={15} style={{ color: 'var(--brand-primary)' }} />
+                      {t.seoTitle}
+                    </div>
+                    <div className="output-subtitle">{t.seoTitleDesc}</div>
+                  </div>
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary btn-sm" 
+                    onClick={() => handleCopy(generatedTitle, 'title')}
+                    disabled={!generatedTitle}
+                  >
+                    {copiedField === 'title' ? <Check size={14} style={{ color: 'var(--color-success)' }} /> : <Copy size={14} />}
+                    {copiedField === 'title' ? (language === 'en' ? 'Copied' : '已复制') : t.copyBtn}
+                  </button>
+                </div>
+                {isGenerating ? (
+                  <div className="shimmer-text"></div>
+                ) : (
+                  <input 
+                    type="text"
+                    className="form-input output-content output-content-title"
+                    value={generatedTitle}
+                    onChange={(e) => setGeneratedTitle(e.target.value)}
+                    placeholder={language === 'en' ? 'Waiting for generation...' : '等待 AI 一键生成物料...'}
+                  />
+                )}
+              </div>
+
+              {/* Result: Text Description */}
+              <div className="output-card">
+                <div className="output-header">
+                  <div>
+                    <div className="output-label">
+                      <FileText size={15} style={{ color: 'var(--brand-secondary)' }} />
+                      {t.description}
+                    </div>
+                    <div className="output-subtitle">{t.descriptionDesc}</div>
+                  </div>
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary btn-sm" 
+                    onClick={() => handleCopy(generatedDescription, 'desc')}
+                    disabled={!generatedDescription}
+                  >
+                    {copiedField === 'desc' ? <Check size={14} style={{ color: 'var(--color-success)' }} /> : <Copy size={14} />}
+                    {copiedField === 'desc' ? (language === 'en' ? 'Copied' : '已复制') : t.copyBtn}
+                  </button>
+                </div>
+                {isGenerating ? (
+                  <div className="shimmer-text shimmer-desc"></div>
+                ) : (
+                  <textarea
+                    className="form-input output-content"
+                    value={generatedDescription}
+                    onChange={(e) => setGeneratedDescription(e.target.value)}
+                    placeholder={language === 'en' ? 'Waiting for generation...' : '等待 AI 一键生成描述文案...'}
+                    style={{ minHeight: '160px' }}
+                  />
+                )}
+              </div>
+
+              {/* Result: Main Image Prompt */}
+              <div className="output-card">
+                <div className="output-header">
+                  <div>
+                    <div className="output-label">
+                      <Image size={15} style={{ color: 'var(--brand-tertiary)' }} />
+                      {t.mainImagePrompt}
+                    </div>
+                    <div className="output-subtitle">{t.mainImagePromptDesc}</div>
+                  </div>
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary btn-sm" 
+                    onClick={() => handleCopy(generatedMainImagePrompt, 'mainImage')}
+                    disabled={!generatedMainImagePrompt}
+                  >
+                    {copiedField === 'mainImage' ? <Check size={14} style={{ color: 'var(--color-success)' }} /> : <Copy size={14} />}
+                    {copiedField === 'mainImage' ? (language === 'en' ? 'Copied' : '已复制') : t.copyBtn}
+                  </button>
+                </div>
+                {isGenerating ? (
+                  <div className="shimmer-text"></div>
+                ) : (
+                  <textarea
+                    className="form-input output-content"
+                    value={generatedMainImagePrompt}
+                    onChange={(e) => setGeneratedMainImagePrompt(e.target.value)}
+                    placeholder={language === 'en' ? 'Waiting for generation...' : '等待 AI 一键生成主图绘图词...'}
+                    style={{ minHeight: '70px', fontFamily: 'monospace', fontSize: '0.82rem' }}
+                  />
+                )}
+              </div>
+
+              {/* Result: Detail Image Prompt */}
+              <div className="output-card">
+                <div className="output-header">
+                  <div>
+                    <div className="output-label">
+                      <Image size={15} style={{ color: 'var(--brand-primary)' }} />
+                      {t.detailImagePrompt}
+                    </div>
+                    <div className="output-subtitle">{t.detailImagePromptDesc}</div>
+                  </div>
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary btn-sm" 
+                    onClick={() => handleCopy(generatedDetailImagePrompt, 'detailImage')}
+                    disabled={!generatedDetailImagePrompt}
+                  >
+                    {copiedField === 'detailImage' ? <Check size={14} style={{ color: 'var(--color-success)' }} /> : <Copy size={14} />}
+                    {copiedField === 'detailImage' ? (language === 'en' ? 'Copied' : '已复制') : t.copyBtn}
+                  </button>
+                </div>
+                {isGenerating ? (
+                  <div className="shimmer-text"></div>
+                ) : (
+                  <textarea
+                    className="form-input output-content"
+                    value={generatedDetailImagePrompt}
+                    onChange={(e) => setGeneratedDetailImagePrompt(e.target.value)}
+                    placeholder={language === 'en' ? 'Waiting for generation...' : '等待 AI 一键生成详情图绘图词...'}
+                    style={{ minHeight: '70px', fontFamily: 'monospace', fontSize: '0.82rem' }}
+                  />
+                )}
+              </div>
+            </section>
+          </div>
+        </main>
+      )}
+
+      {activeTab === 'library' && (
+        <main className="main-workspace">
+          {/* CMS Assets Dashboard takes full width */}
+          <section className="glass-panel glass-card cms-dashboard full-width-panel" style={{ marginTop: 0 }}>
+            <div className="cms-header">
+              <h2 className="panel-title">
+                <FolderOpen size={18} className="text-secondary" />
+                {t.savedProducts}
+              </h2>
+              
+              <div className="cms-controls">
+                <div style={{ position: 'relative', flex: 1 }}>
+                  <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} />
+                  <input 
+                    type="text" 
+                    className="form-input" 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder={t.searchPlaceholder}
+                    style={{ paddingLeft: '36px' }}
+                  />
+                </div>
+
+                <button 
+                  type="button" 
+                  className="btn btn-secondary" 
+                  onClick={loadSavedProductsFromGitHub}
+                  disabled={isLoadingProducts || !githubToken || !githubRepo}
+                >
+                  <RefreshCw size={14} className={isLoadingProducts ? "animate-spin" : ""} />
+                  {t.refreshBtn}
+                </button>
+              </div>
             </div>
-          ) : !githubToken || !githubRepo ? (
-            <div className="cms-empty">
-              <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-github">
-                <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
-                <path d="M9 18c-4.51 2-5-2-7-2" />
-              </svg>
-              <p>{t.noProducts}</p>
-            </div>
-          ) : filteredProducts.length === 0 ? (
-            <div className="cms-empty">
-              <FolderOpen size={24} />
-              <p>{language === 'en' ? 'No matching products found.' : '未能搜索到匹配的商品资产。'}</p>
-            </div>
-          ) : (
-            <div className="cms-grid">
-              {filteredProducts.map(item => (
-                <div key={item.sha} className="cms-item-card">
-                  <div className="cms-item-info">
-                    <span className="cms-item-tag">{item.category}</span>
-                    <h4>{item.id}</h4>
-                    <div className="cms-item-meta">
-                      <span><strong>Path:</strong> {item.path}</span>
+
+            {/* CMS Listings */}
+            {isLoadingProducts ? (
+              <div className="cms-empty">
+                <RefreshCw size={24} className="animate-spin" />
+                <p>{language === 'en' ? 'Loading assets list from GitHub...' : '正在从 GitHub 载入资产列表...'}</p>
+              </div>
+            ) : !githubToken || !githubRepo ? (
+              <div className="cms-empty">
+                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-github">
+                  <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
+                  <path d="M9 18c-4.51 2-5-2-7-2" />
+                </svg>
+                <p>{t.noProducts}</p>
+              </div>
+            ) : filteredProducts.length === 0 ? (
+              <div className="cms-empty">
+                <FolderOpen size={24} />
+                <p>{language === 'en' ? 'No matching products found.' : '未能搜索到匹配的商品资产。'}</p>
+              </div>
+            ) : (
+              <div className="cms-grid" style={{ maxHeight: 'calc(100vh - 240px)' }}>
+                {filteredProducts.map(item => (
+                  <div key={item.sha} className="cms-item-card">
+                    <div className="cms-item-info">
+                      <span className="cms-item-tag">{item.category}</span>
+                      <h4>{item.id}</h4>
+                      <div className="cms-item-meta">
+                        <span><strong>Path:</strong> {item.path}</span>
+                      </div>
+                    </div>
+                    <div className="cms-item-actions">
+                      <button 
+                        type="button" 
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => handleLoadProductDetails(item.path)}
+                        style={{ padding: '6px 10px', fontSize: '0.78rem' }}
+                      >
+                        <Edit size={12} />
+                        {t.loadProduct}
+                      </button>
+                      <button 
+                        type="button" 
+                        className="btn btn-secondary btn-danger btn-sm"
+                        onClick={() => handleDeleteProduct(item.path, item.sha)}
+                        style={{ padding: '6px 10px', fontSize: '0.78rem' }}
+                      >
+                        <Trash2 size={12} />
+                      </button>
                     </div>
                   </div>
-                  <div className="cms-item-actions">
+                ))}
+              </div>
+            )}
+          </section>
+        </main>
+      )}
+
+      {activeTab === 'settings' && (
+        <main className="main-workspace">
+          {/* Left Column: API Settings & warning banner */}
+          <div className="workspace-column">
+            <section className="glass-panel glass-card">
+              <h3 className="sidebar-title">
+                <Settings size={18} className="text-secondary" />
+                {t.settings}
+              </h3>
+              <form onSubmit={handleSaveSettings} style={{ marginTop: '16px' }}>
+                <h4 style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '12px' }}>
+                  {t.apiSettings}
+                </h4>
+
+                {/* Gemini API Key */}
+                <div className="form-group">
+                  <label className="form-label">{t.geminiKey}</label>
+                  <div style={{ position: 'relative' }}>
+                    <input 
+                      type={showGeminiKey ? "text" : "password"}
+                      className="form-input" 
+                      value={geminiKey}
+                      onChange={(e) => setGeminiKey(e.target.value)}
+                      placeholder={t.geminiKeyPlaceholder}
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => setShowGeminiKey(!showGeminiKey)}
+                      style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', fontSize: '0.8rem' }}
+                    >
+                      {showGeminiKey ? "Hide" : "Show"}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Gemini Model Select */}
+                <div className="form-group">
+                  <label className="form-label">{language === 'en' ? 'Gemini Model' : '模型选择'}</label>
+                  <select 
+                    className="form-input form-select"
+                    value={selectedModel}
+                    onChange={(e) => setSelectedModel(e.target.value)}
+                  >
+                    {AVAILABLE_MODELS.map(model => (
+                      <option key={model.id} value={model.id}>{model.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <h4 style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', margin: '20px 0 12px 0' }}>
+                  GitHub Storage (BYOK)
+                </h4>
+
+                {/* GitHub Token */}
+                <div className="form-group">
+                  <label className="form-label">{t.githubToken}</label>
+                  <div style={{ position: 'relative' }}>
+                    <input 
+                      type={showGithubToken ? "text" : "password"}
+                      className="form-input" 
+                      value={githubToken}
+                      onChange={(e) => setGithubToken(e.target.value)}
+                      placeholder={t.githubTokenPlaceholder}
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => setShowGithubToken(!showGithubToken)}
+                      style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', fontSize: '0.8rem' }}
+                    >
+                      {showGithubToken ? "Hide" : "Show"}
+                    </button>
+                  </div>
+                </div>
+
+                {/* GitHub Repo */}
+                <div className="form-group">
+                  <label className="form-label">{t.githubRepo}</label>
+                  <input 
+                    type="text" 
+                    className="form-input" 
+                    value={githubRepo}
+                    onChange={(e) => setGithubRepo(e.target.value)}
+                    placeholder={t.githubRepoPlaceholder}
+                  />
+                </div>
+
+                {/* GitHub Branch */}
+                <div className="form-group">
+                  <label className="form-label">{t.githubBranch}</label>
+                  <input 
+                    type="text" 
+                    className="form-input" 
+                    value={githubBranch}
+                    onChange={(e) => setGithubBranch(e.target.value)}
+                    placeholder={t.githubBranchPlaceholder}
+                  />
+                </div>
+
+                <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '8px' }}>
+                  <Save size={16} />
+                  {t.saveSettings}
+                </button>
+              </form>
+            </section>
+
+            {/* Warning banner inside settings if missing keys */}
+            {(!geminiKey || !githubToken || !githubRepo) && (
+              <div className="glass-panel" style={{ padding: '16px', background: 'var(--color-error-bg)', borderColor: 'rgba(239, 68, 68, 0.2)', fontSize: '0.82rem', display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px' }}>
+                <span style={{ fontWeight: 'bold', color: 'var(--color-error)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  ⚠️ {language === 'en' ? 'Setup Required' : '需先配置 API 秘钥'}
+                </span>
+                <p style={{ color: 'var(--text-secondary)' }}>
+                  {language === 'en' 
+                    ? 'Please enter your Gemini API Key and GitHub settings to unlock generation and saving.'
+                    : '请在上方配置 Gemini API Key 以及 GitHub 仓库，即可一键生成物料并上传管理商品素材。'}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Right Column: Prompt Template Management & Synchronization */}
+          <div className="workspace-column">
+            <section className="glass-panel glass-card inputs-grid">
+              <div className="panel-header">
+                <h2 className="panel-title">
+                  <Settings size={18} className="text-secondary" />
+                  {language === 'en' ? 'Prompt Template Management' : '提示词模板管理'}
+                </h2>
+              </div>
+
+              <div className="prompt-area">
+                <label className="form-label">{t.promptConfig}</label>
+                <div className="prompt-templates-row">
+                  <select
+                    className="form-input form-select prompt-templates-select"
+                    value={selectedTemplateId}
+                    onChange={(e) => handleTemplateChange(e.target.value)}
+                  >
+                    {templatesList.map(tpl => (
+                      <option key={tpl.id} value={tpl.id}>
+                        {language === 'en' ? tpl.nameEn : language === 'zh-TW' ? tpl.nameTw : tpl.name}
+                      </option>
+                    ))}
+                  </select>
+                  
+                  {/* Delete custom template */}
+                  {(() => {
+                    const currentTpl = templatesList.find(x => x.id === selectedTemplateId);
+                    return currentTpl && !currentTpl.isSystem && (
+                      <button 
+                        type="button" 
+                        onClick={handleDeleteTemplate} 
+                        className="btn btn-secondary btn-danger"
+                        title={t.deleteTemplate}
+                        style={{ padding: '0 12px' }}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    );
+                  })()}
+                </div>
+
+                <div className="prompt-templates-row" style={{ marginTop: '8px', marginBottom: '8px' }}>
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm"
+                    onClick={handleUploadTemplatesToGitHub}
+                    disabled={!githubToken || !githubRepo}
+                    style={{ flex: 1, fontSize: '0.8rem' }}
+                  >
+                    <Save size={14} />
+                    {language === 'en' ? 'Upload Templates (prompt.json)' : '上传模板至 GitHub'}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm"
+                    onClick={handlePullTemplatesFromGitHub}
+                    disabled={!githubToken || !githubRepo}
+                    style={{ flex: 1, fontSize: '0.8rem' }}
+                  >
+                    <RefreshCw size={14} />
+                    {language === 'en' ? 'Pull from GitHub' : '从 GitHub 拉取模板'}
+                  </button>
+                </div>
+
+                <div className="form-group">
+                  <div className="flex-between" style={{ marginBottom: '6px' }}>
+                    <label className="form-label" style={{ margin: 0 }}>{t.editPrompt}</label>
                     <button 
                       type="button" 
                       className="btn btn-secondary btn-sm"
-                      onClick={() => handleLoadProductDetails(item.path)}
-                      style={{ padding: '6px 10px', fontSize: '0.78rem' }}
+                      onClick={() => setShowSaveTemplateModal(true)}
+                      style={{ padding: '4px 10px', fontSize: '0.78rem' }}
                     >
-                      <Edit size={12} />
-                      {t.loadProduct}
-                    </button>
-                    <button 
-                      type="button" 
-                      className="btn btn-secondary btn-danger btn-sm"
-                      onClick={() => handleDeleteProduct(item.path, item.sha)}
-                      style={{ padding: '6px 10px', fontSize: '0.78rem' }}
-                    >
-                      <Trash2 size={12} />
+                      <Plus size={14} />
+                      {t.saveAsTemplate}
                     </button>
                   </div>
+                  <textarea 
+                    className="form-input prompt-textarea" 
+                    value={editedPromptText}
+                    onChange={(e) => setEditedPromptText(e.target.value)}
+                    style={{ minHeight: '340px' }}
+                  />
                 </div>
-              ))}
-            </div>
-          )}
-        </section>
-      </main>
+              </div>
+            </section>
+          </div>
+        </main>
+      )}
 
       {/* Save Template Modal */}
       {showSaveTemplateModal && (

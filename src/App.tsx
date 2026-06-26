@@ -41,7 +41,7 @@ function App() {
   // API Config States
   const [geminiKey, setGeminiKey] = useState(() => localStorage.getItem('qianniu_gemini_key') || '');
   const [githubToken, setGithubToken] = useState(() => localStorage.getItem('qianniu_github_token') || '');
-  const [githubRepo, setGithubRepo] = useState(() => localStorage.getItem('qianniu_github_repo') || 'shalom-lab/MerchForge');
+  const [githubRepo, setGithubRepo] = useState(() => localStorage.getItem('qianniu_github_repo') || 'shalom-lab/qianniuwei');
   const [githubBranch, setGithubBranch] = useState(() => localStorage.getItem('qianniu_github_branch') || 'main');
   const [selectedModel, setSelectedModel] = useState(() => localStorage.getItem('qianniu_gemini_model') || 'gemini-2.5-flash');
 
@@ -592,7 +592,7 @@ function App() {
 
           {/* GitHub Repository Link */}
           <a 
-            href="https://github.com/shalom-lab/MerchForge" 
+            href="https://github.com/shalom-lab/qianniuwei" 
             target="_blank" 
             rel="noopener noreferrer"
             className="theme-toggle-btn"

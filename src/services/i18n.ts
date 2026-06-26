@@ -76,7 +76,7 @@ export interface Translations {
 
 export const translations: Record<Language, Translations> = {
   'zh-CN': {
-    appName: '千牛 AI 商品素材生成助手',
+    appName: '千牛卫',
     appSubtitle: '为淘宝、天猫等平台一键生成 SEO 标题、文字描述及 AI 作图提示词',
     settings: '配置中心',
     apiSettings: 'API 配置 (BYOK)',
@@ -144,7 +144,7 @@ export const translations: Record<Language, Translations> = {
     loadSuccess: '商品数据已成功载入工作区！',
   },
   'zh-TW': {
-    appName: '千牛 AI 商品素材生成助手',
+    appName: '千牛卫',
     appSubtitle: '為淘寶、天貓等平台一鍵生成 SEO 標題、文字描述及 AI 作圖提示詞',
     settings: '配置中心',
     apiSettings: 'API 配置 (BYOK)',
@@ -212,7 +212,7 @@ export const translations: Record<Language, Translations> = {
     loadSuccess: '商品數據已成功載入工作區！',
   },
   'en': {
-    appName: 'Qianniu AI Product Asset Assistant',
+    appName: '千牛卫',
     appSubtitle: 'Generate SEO titles, descriptions, and image prompts for Taobao, Tmall, etc.',
     settings: 'Configuration Center',
     apiSettings: 'API Settings (BYOK)',
